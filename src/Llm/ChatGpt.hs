@@ -5,9 +5,21 @@ import Etc.Context (openAiKey)
 import GHC.Generics
 import Network.HTTP.Client (newManager)
 import Network.HTTP.Client.TLS (tlsManagerSettings)
-import OpenAI.Client ( ChatCompletionRequest(..), ChatMessage(..), ModelId(..)
+import OpenAI.Client ( ChatCompletionRequest(..), ChatMessage(..), ChatResponse, ModelId(..)
                      , chrChoices, completeChat, makeOpenAIClient
                      )
+
+-- @todo: redo using Reader
+chat :: ChatCompletionRequest -> IO ()
+chat req = do
+  apikey <- openAiKey
+  manager <- newManager tlsManagerSettings
+  let client = makeOpenAIClient apikey manager retries
+      retries = 3
+  res <- completeChat client req
+  case res of
+    Left  err     -> print err
+    Right chatRes -> print $ chrChoices chatRes
 
 newtype Content = Content { content :: Text }
   deriving (Eq, Generic, Show)
@@ -37,15 +49,3 @@ chatCompletionRequest (Content c) role =
   , chcrLogitBias = Nothing
   , chcrUser = Nothing
   }
-
--- @todo: redo using Reader
-post :: ChatCompletionRequest -> IO ()
-post req = do
-  apikey <- openAiKey
-  manager <- newManager tlsManagerSettings
-  let retries = 3
-      client = makeOpenAIClient apikey manager retries
-  res <- completeChat client req
-  case res of
-       Left  failure -> print failure
-       Right success -> print $ chrChoices success

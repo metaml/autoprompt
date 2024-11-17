@@ -21,7 +21,6 @@ lint: ## lint
 
 clean: ## clean
 	cabal clean
-	rm -rf logs packages store
 	find . -name \*~ | xargs rm -f
 
 clobber: clean ## clobber

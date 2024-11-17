@@ -1,5 +1,6 @@
 module Main where
-import Etc.Autoprompt (run)
+
+import Etc.Autoprompt (port, run)
 
 main :: IO ()
-main = putStrLn "autoprompt starting" >> run
+main = putStrLn ("listening on port: " <> show port) >> run

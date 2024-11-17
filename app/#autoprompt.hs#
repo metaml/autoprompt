@@ -1,5 +1,0 @@
-module Main where
-oimport Etc.Autoprompt (run)
-
-main :: IO ()
-main = putStrLn "autoprompt starting" >> run

@@ -50,5 +50,16 @@ help: ## help
 	-@cabal --version
 	-@hlint --version
 
-ssl-cert: ## create a self signed cert for SSL
-	openssl req -x509 -newkey rsa:4096 -nodes -out etc/ssl/cert.pem -keyout etc/ssl/key.pem -days 3650
+KEY=etc/ssl/key.pem
+CSR=etc/ssl/server.csr
+CERT=etc/ssl/cert.pem
+
+cert-ssl: cert-ec ## create self-signed ssl certificate
+
+cert-ec:
+	openssl ecparam -name prime256v1 -genkey -noout -out $(KEY)
+	openssl req -new -sha256 -key $(KEY) -out $(CSR)
+	openssl x509 -req -sha256 -days 3652 -in $(CSR) -signkey $(KEY) -out $(CERT)
+
+cert-rsa:
+	openssl req -x509 -newkey rsa:2048 -nodes -out etc/ssl/cert.pem -keyout etc/ssl/key.pem -days 3652

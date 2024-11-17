@@ -1,0 +1,95 @@
+cabal-version: 3.12
+name:          autoprompt
+version:       0.1.0.0
+synopsis:      autoprompt
+author:        ml
+maintainer:    metaml@gmail.com
+build-type:    Simple
+
+common warnings
+    ghc-options: -Wall -O2 -threaded
+
+library
+  exposed-modules:    Etc.Init
+                    , Etc.Autoprompt
+                    , Model.Api.Api
+                    , Model.Api.Ping
+                    , Model.Api.Static
+  hs-source-dirs:     src
+  ghc-options:        -O2 -Wall -threaded -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints -fno-warn-type-defaults -flate-specialise -fspecialise-aggressively
+  default-language:   Haskell2010
+  default-extensions: BangPatterns
+                    , BlockArguments
+                    , ConstraintKinds
+                    , DataKinds
+                    , DeriveAnyClass
+                    , DeriveFunctor
+                    , DeriveGeneric
+                    , DerivingVia
+                    , DuplicateRecordFields
+                    , FlexibleContexts
+                    , FlexibleInstances
+                    , ForeignFunctionInterface
+                    , GADTs
+                    , KindSignatures
+                    , LambdaCase
+                    , MultiParamTypeClasses
+                    , OverloadedLabels
+                    , OverloadedStrings
+                    , PatternSynonyms
+                    , PolyKinds
+                    , QuasiQuotes
+                    , RankNTypes
+                    , ScopedTypeVariables
+                    , StandaloneDeriving
+                    , StrictData
+                    , TemplateHaskell
+                    , TupleSections
+                    , TypeApplications
+                    , TypeFamilies
+                    , TypeOperators
+                    , TypeSynonymInstances
+                    , UndecidableInstances
+                    , ViewPatterns
+  build-depends:      base
+                    , aeson
+                    , aeson-optics
+                    , bytestring
+                    , beam-core
+                    , beam-migrate
+                    , beam-postgres
+                    , cassava
+                    , directory
+                    , exceptions
+                    , filepath
+                    , http-client
+                    , http-client-tls
+                    , inline-c
+                    , mmzk-typeid
+                    , mtl
+                    , optics-core
+                    , optparse-applicative
+                    , servant
+                    , servant-auth
+                    , servant-client
+                    , servant-server
+                    , streamly-core
+                    , template-haskell
+                    , text
+                    , time
+                    , uuid
+                    , vector
+                    , wai
+                    , warp
+                    , warp-tls
+
+executable autoprompt
+    import:             warnings
+    main-is:            autoprompt.hs
+    ghc-options:        -O2 -Wall -threaded -rtsopts -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints -fno-warn-type-defaults -flate-specialise -fspecialise-aggressively
+    build-depends:      base
+                      , autoprompt
+                      , text
+    hs-source-dirs:     app
+    default-language:   Haskell2010
+    default-extensions: OverloadedStrings

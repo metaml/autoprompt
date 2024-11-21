@@ -15,6 +15,7 @@ library
                   , Etc.Init
                   , Llm.ChatGpt
                   , Model.Api.Api
+                  , Model.Api.Chat
                   , Model.Api.Ping
                   , Model.Api.Static
   hs-source-dirs:     src
@@ -36,8 +37,10 @@ library
                     , KindSignatures
                     , LambdaCase
                     , MultiParamTypeClasses
+                    , NoFieldSelectors
                     , OverloadedLabels
                     , OverloadedStrings
+                    , OverloadedRecordDot
                     , PatternSynonyms
                     , PolyKinds
                     , QuasiQuotes
@@ -75,6 +78,7 @@ library
                     , servant
                     , servant-auth
                     , servant-client
+                    , servant-client-core
                     , servant-server
                     , streamly-core
                     , text

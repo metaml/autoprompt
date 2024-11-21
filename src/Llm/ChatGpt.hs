@@ -6,20 +6,21 @@ import GHC.Generics
 import Network.HTTP.Client (newManager)
 import Network.HTTP.Client.TLS (tlsManagerSettings)
 import OpenAI.Client ( ChatCompletionRequest(..), ChatMessage(..), ChatResponse, ModelId(..)
-                     , chrChoices, completeChat, makeOpenAIClient
+                     , completeChat, makeOpenAIClient
                      )
+import Servant.Client.Core.ClientError (ClientError(..))
 
 -- @todo: redo using Reader
-chat :: ChatCompletionRequest -> IO ()
+chat :: ChatCompletionRequest -> IO (Either ClientError ChatResponse)
 chat req = do
   apikey <- openAiKey
   manager <- newManager tlsManagerSettings
-  let client = makeOpenAIClient apikey manager retries
-      retries = 3
-  res <- completeChat client req
-  case res of
-    Left  err     -> print err
-    Right chatRes -> print $ chrChoices chatRes
+  let client = makeOpenAIClient apikey manager retries; retries = 3
+  completeChat client req
+
+  -- case cres of
+  --   Left  err -> print err
+  --   Right res -> print $ chrChoices res
 
 newtype Content = Content { content :: Text }
   deriving (Eq, Generic, Show)
@@ -27,8 +28,8 @@ newtype Content = Content { content :: Text }
 data Role = User | System
   deriving (Eq, Generic, Show)
 
-chatCompletionRequest :: Content -> Role -> ChatCompletionRequest
-chatCompletionRequest (Content c) role =
+chatRequest :: Content -> Role -> ChatCompletionRequest
+chatRequest (Content c) role =
   ChatCompletionRequest
   { chcrModel = ModelId "gpt-4o"
   , chcrMessages = [ ChatMessage { chmContent = Just c

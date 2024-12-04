@@ -26,6 +26,7 @@ clean: ## clean
 clobber: clean ## clobber
 	rm -rf dist-newstyle/*
 
+run: export OPENAI_API_KEY ?= $(shell aws secretsmanager get-secret-value --secret-id=openai-api-key --output json | jq --raw-output '.SecretString')
 run: ## run autoprompt
 	cabal run autoprompt
 
@@ -49,6 +50,18 @@ help: ## help
 	-@ghc --version
 	-@cabal --version
 	-@hlint --version
+
+login-aws: ## login to aws to fetch/refresh token
+	aws sso login # AdministratorAccess-975050288432
+
+api-test: METHOD ?= chat/chat
+api-test: ## curl an endpoint
+	curl \
+	--insecure \
+	--request POST \
+	--header "Content-Type: application/json" \
+	--data @etc/test/chatreq.json \
+	https://localhost:8443/$(METHOD)
 
 KEY=etc/ssl/key.pem
 CSR=etc/ssl/server.csr

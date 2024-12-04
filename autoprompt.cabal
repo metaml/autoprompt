@@ -18,6 +18,7 @@ library
                   , Model.Api.Chat
                   , Model.Api.Ping
                   , Model.Api.Static
+                  , Model.Streamly
   hs-source-dirs:     src
   ghc-options:        -O2 -Wall -threaded -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints -fno-warn-type-defaults -flate-specialise -fspecialise-aggressively
   default-language:   Haskell2010
@@ -64,7 +65,9 @@ library
                     , beam-migrate
                     , beam-postgres
                     , cassava
+                    , containers
                     , directory
+                    , either
                     , exceptions
                     , filepath
                     , http-client

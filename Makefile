@@ -1,6 +1,11 @@
 .DEFAULT_GOAL = help
 
 export SHELL := $(shell type --path bash)
+# the following vars are required for targets, "repl" and "rds-db"
+DBDATABASE = aip
+DBHOST     = aip.c7eaoykysgcc.us-east-2.rds.amazonaws.com
+DBPASSWORD = $(shell aws secretsmanager get-secret-value --secret-id=db-password |awk '{print $$4}')
+DBUSER     = $(shell aws secretsmanager get-secret-value --secret-id=db-user     |awk '{print $$4}')
 
 buildc: build ## build continuously
 	@fswatch --latency 1 --one-per-batch --recursive --extended --exclude ".*" --include ".*\.hs$$|.*\.cabal$$|cabal\.project$$" . \
@@ -21,7 +26,7 @@ lint: ## lint
 
 clean: ## clean
 	cabal clean
-	find . -name \*~ | xargs rm -f
+	find . -name '*~' -o -name '#*' | xargs rm -f
 
 clobber: clean ## clobber
 	rm -rf dist-newstyle/*
@@ -30,6 +35,10 @@ run: export OPENAI_API_KEY ?= $(shell aws secretsmanager get-secret-value --secr
 run: ## run autoprompt
 	cabal run autoprompt
 
+repl: export PGDATABASE = $(DBDATABASE)
+repl: export PGHOST     = $(DBHOST)
+repl: export PGPASSWORD = $(DBPASSWORD)
+repl: export PGUSER     = $(DBUSER)
 repl: ## repl
 	cabal repl autoprompt
 
@@ -51,6 +60,7 @@ help: ## help
 	-@cabal --version
 	-@hlint --version
 
+# @todo: use a lesser role
 login-aws: ## login to aws to fetch/refresh token
 	aws sso login # AdministratorAccess-975050288432
 
@@ -63,13 +73,17 @@ api-test: ## curl an endpoint
 	--data @etc/test/chatreq.json \
 	https://localhost:8443/$(METHOD)
 
-KEY=etc/ssl/key.pem
-CSR=etc/ssl/server.csr
-CERT=etc/ssl/cert.pem
+rds-db: export PGDATABASE = $(DBDATABASE)
+rds-db: export PGHOST     = $(DBHOST)
+rds-db: export PGPASSWORD = $(DBPASSWORD)
+rds-db: export PGUSER     = $(DBUSER)
+rds-db: ## connect to the postgresql instance
+	psql aip
 
-cert-ssl: cert-ec ## create self-signed ssl certificate
-
-cert-ec:
+cert-ssl: KEY=etc/ssl/key.pem
+cert-ssl: CSR=etc/ssl/server.csr
+cert-ssl: CERT=etc/ssl/cert.pem
+cert-ssl: ## create self-signed ssl certificate for dev only
 	openssl ecparam -name prime256v1 -genkey -noout -out $(KEY)
 	openssl req -new -sha256 -key $(KEY) -out $(CSR)
 	openssl x509 -req -sha256 -days 3652 -in $(CSR) -signkey $(KEY) -out $(CERT)

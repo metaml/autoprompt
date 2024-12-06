@@ -8,7 +8,7 @@ import Data.Function ((&))
 import Data.Maybe (fromJust, isJust)
 import Data.Text (Text)
 import GHC.Generics (Generic)
-import Llm.ChatGpt (Content(..), Role(..), chat, chatRequest)
+import Llm.ChatGpt (Content(..), Role(..), chatRequest)
 import OpenAI.Client (chchMessage, chmContent, chmRole, chrChoices)
 import Servant ( (:>), (:-), Application, JSON, NamedRoutes, Post, Proxy(..), ReqBody
                , serve
@@ -16,6 +16,7 @@ import Servant ( (:>), (:-), Application, JSON, NamedRoutes, Post, Proxy(..), Re
 import Servant.Server.Internal (AsServerT, Handler)
 import qualified Data.Map as M
 import qualified Data.List.NonEmpty as N
+import qualified Llm.ChatGpt as Chat
 import qualified Model.Streamly as S
 import qualified Streamly.Data.Fold as F
 import qualified Streamly.Data.Stream as S
@@ -72,7 +73,7 @@ chat' req = do
       Message _ _ member friend = N.head req.messages
   cs <- liftIO $ S.fromPure (chatReq <$> N.toList req.messages)
                  & S.flatten
-                 & S.mapM chat
+                 & S.mapM Chat.chat
                  & S.filter isRight
                  & fmap fromRight'
                  & fmap chrChoices

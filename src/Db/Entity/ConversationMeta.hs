@@ -1,15 +1,16 @@
-module Db.ConversationMeta where
+module Db.Entity.ConversationMeta where
 
 import Data.Aeson (Value)
+import Data.Int (Int32)
 import Data.Text (Text)
 import Data.Time (UTCTime)
 import Data.UUID (UUID)
 import Database.Beam (Identity)
 import Database.Beam.Schema (Beamable, Columnar, PrimaryKey(..), Table)
-import Db.Enum (MetaEnum)
+import Db.Entity.Enum (MetaEnum)
 import GHC.Generics (Generic)
 
-data ConversationMetaT f = ConversationMeta { conversationMetaId                 :: Columnar f Int
+data ConversationMetaT f = ConversationMeta { conversationMetaId                 :: Columnar f Int32
                                             , conversationMetaGuid               :: Columnar f UUID
                                             , conversationMetaMemberId           :: Columnar f Text
                                             , conversationMetaFriendId           :: Columnar f Text
@@ -20,7 +21,7 @@ data ConversationMetaT f = ConversationMeta { conversationMetaId                
                                             } deriving (Beamable, Generic)
 
 instance Table ConversationMetaT where
-  data PrimaryKey ConversationMetaT f = ConversationKey (Columnar f Int)
+  data PrimaryKey ConversationMetaT f = ConversationKey (Columnar f Int32)
     deriving (Beamable, Generic)
   primaryKey = ConversationKey <$> conversationMetaId
 

@@ -16,7 +16,7 @@ build: # lint (breaks on multiple readers) ## build
 	cabal build --jobs='$$ncpus' | source-highlight --src-lang=haskell --out-format=esc
 
 install: ## install
-	cabal install --install-method=copy --overwrite-policy=always --installdir=bin exe:autoprompt
+	cabal install --enable-prof --install-method=copy --overwrite-policy=always --installdir=bin exe:autoprompt
 
 test: ## test
 	cabal test
@@ -30,10 +30,22 @@ clean: ## clean
 
 clobber: clean ## clobber
 	rm -rf dist-newstyle/*
-
+run: export PGDATABASE = $(DBDATABASE)
+run: export PGHOST     = $(DBHOST)
+run: export PGPASSWORD = $(DBPASSWORD)
+run: export PGUSER     = $(DBUSER)
 run: export OPENAI_API_KEY ?= $(shell aws secretsmanager get-secret-value --secret-id=openai-api-key --output json | jq --raw-output '.SecretString')
 run: ## run autoprompt
 	cabal run autoprompt
+
+run-bin: install
+run-bin: export PGDATABASE = $(DBDATABASE)
+run-bin: export PGHOST     = $(DBHOST)
+run-bin: export PGPASSWORD = $(DBPASSWORD)
+run-bin: export PGUSER     = $(DBUSER)
+run-bin: export OPENAI_API_KEY ?= $(shell aws secretsmanager get-secret-value --secret-id=openai-api-key --output json | jq --raw-output '.SecretString')
+run-bin: ## run autoprompt
+	./bin/autoprompt +RTS -xc
 
 repl: export PGDATABASE = $(DBDATABASE)
 repl: export PGHOST     = $(DBHOST)

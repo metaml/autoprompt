@@ -1,15 +1,13 @@
-module Db.Member where
+module Db.Entity.Member where
 
-import Data.Aeson (Value)
+import Data.Int (Int32)
 import Data.Text (Text)
 import Data.Time (UTCTime)
-import Data.UUID (UUID)
 import Database.Beam (Identity)
 import Database.Beam.Schema (Beamable, Columnar, PrimaryKey(..), Table)
-import Db.Enum (MessageEnum)
 import GHC.Generics (Generic)
 
-data MemberT f = Member { memberId        :: Columnar f Int
+data MemberT f = Member { memberId        :: Columnar f Int32
                         , memberEmail     :: Columnar f Text
                         , memberPassword  :: Columnar f Text
                         , memberFirstNam  :: Columnar f Text
@@ -19,7 +17,7 @@ data MemberT f = Member { memberId        :: Columnar f Int
                         } deriving (Beamable, Generic)
 
 instance Table MemberT where
-  data PrimaryKey MemberT f = MemberKey (Columnar f Int)
+  data PrimaryKey MemberT f = MemberKey (Columnar f Int32)
     deriving (Beamable, Generic)
   primaryKey = MemberKey <$> memberId
 type Member = MemberT Identity

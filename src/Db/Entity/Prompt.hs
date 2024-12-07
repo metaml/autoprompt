@@ -1,16 +1,16 @@
-module Db.Prompt where
+module Db.Entity.Prompt where
 
-import Data.Aeson (Value)
+import Data.Int (Int32)
 import Data.Text (Text)
 import Data.Time (UTCTime)
 import Data.UUID (UUID)
 import Database.Beam (Identity)
 import Database.Beam.Schema (Beamable, Columnar, PrimaryKey(..), Table)
-import Db.Enum (MessageEnum)
 import GHC.Generics (Generic)
 
-data PromptT f = Prompt { promptId        :: Columnar f Int
+data PromptT f = Prompt { promptId        :: Columnar f Int32
                         , promptGuid      :: Columnar f UUID
+                        , promptPrompt    :: Columnar f Text
                         , promptMemberId  :: Columnar f Text
                         , promptFriendId  :: Columnar f Text
                         , promptEnabled   :: Columnar f Bool
@@ -18,7 +18,7 @@ data PromptT f = Prompt { promptId        :: Columnar f Int
                         } deriving (Beamable, Generic)
 
 instance Table PromptT where
-  data PrimaryKey PromptT f = PromptKey (Columnar f Int)
+  data PrimaryKey PromptT f = PromptKey (Columnar f Int32)
     deriving (Beamable, Generic)
   primaryKey = PromptKey <$> promptId
 type Prompt = PromptT Identity

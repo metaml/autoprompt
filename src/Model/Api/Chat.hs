@@ -70,7 +70,7 @@ chat' req = do
       contents = \roleMsgs -> case (M.lookup "assistant" roleMsgs) of
                                 Just cs -> cs
                                 Nothing -> ["I'm speachless."]
-      Message _ _ member friend = N.head req.messages
+      Message _ _ member' friend' = N.head req.messages
   cs <- liftIO $ S.fromPure (chatReq <$> N.toList req.messages)
                  & S.flatten
                  & S.mapM Chat.chat
@@ -83,20 +83,20 @@ chat' req = do
                  & fmap (\msg -> (msg.chmRole, fromJust msg.chmContent))
                  & S.fold (F.toMap fst (F.lmap snd F.toList))
                  & fmap contents
-  messages <- liftIO $ S.fromPure cs
-                       & S.flatten
-                       & fmap (\c -> Message { content = c
-                                             , role = "User"
-                                             , member = member
-                                             , friend = friend
-                                             }
-                         )
-                       & S.toList
-  pure ChatRes { messages = N.fromList messages
-               , friend = friend
+  msgs <- liftIO $ S.fromPure cs
+                 & S.flatten
+                 & fmap (\c -> Message { content = c
+                                       , role = "User"
+                                       , member = member'
+                                       , friend = friend'
+                                       }
+                        )
+                 & S.toList
+  pure ChatRes { messages = N.fromList msgs
+               , friend = friend'
                }
 
 messages' :: MessageReq -> Handler MessageRes
-messages' r = pure MessageRes { name = "hal"
+messages' _ = pure MessageRes { name = "hal"
                               , message = "Hello, World!"
                               }

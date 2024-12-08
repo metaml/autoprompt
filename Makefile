@@ -54,6 +54,19 @@ repl: export PGUSER     = $(DBUSER)
 repl: ## repl
 	cabal repl autoprompt
 
+ghcid: export PGDATABASE = $(DBDATABASE)
+ghcid: export PGHOST     = $(DBHOST)
+ghcid: export PGPASSWORD = $(DBPASSWORD)
+ghcid: export PGUSER     = $(DBUSER)
+ghcid: ## ghcid
+	ghcid --verbose
+
+# @todo: broken and 'ghcid:'
+ghcid-dot: ## ghcid's .ghci file
+	echo ':set -fwarn-unused-binds -fwarn-unused-imports' > .ghci
+	echo ':set -isrc -iapp' >> .ghci
+	echo ':load Main.main'
+
 dev: ## nix develop
 	nix develop
 

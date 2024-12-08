@@ -2,6 +2,7 @@
 *.py[cod]
 .DS_Store
 __pycache__/
+.ghci
 bin
 dist-newstyle
 logs

@@ -78,6 +78,7 @@
             coreutils
             findutils
             fswatch
+            ghcid
             git
             gnugrep
             gnumake

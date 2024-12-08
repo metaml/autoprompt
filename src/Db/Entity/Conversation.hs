@@ -3,7 +3,7 @@ module Db.Entity.Conversation where
 import Data.Aeson (Value)
 import Data.Int (Int32)
 import Data.Text (Text)
-import Data.Time (UTCTime)
+import Data.Time (UTCTime, LocalTime)
 import Data.UUID (UUID)
 import Database.Beam (Identity)
 import Database.Beam.Schema (Beamable, Columnar, PrimaryKey(..), Table)
@@ -19,7 +19,7 @@ data ConversationT f = Conversation { conversationId           :: Columnar f Int
                                     , conversationLine         :: Columnar f Text
                                     , conversationMessage      :: Columnar f Value
                                     , conversationMessageState :: Columnar f MessageEnum
-                                    , conversationCreatedAt    :: Columnar f UTCTime
+                                    , conversationCreatedAt    :: Columnar f LocalTime
                                     } deriving (Beamable, Generic)
 
 instance Table ConversationT where

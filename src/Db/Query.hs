@@ -12,7 +12,7 @@ import Database.PostgreSQL.Simple (Connection)
 import Db.Entity.Conversation
 import Db.Entity.Enum
 import Db.Entity.Prompt
-import Model.Api.Chat (Message(..))
+import Api.Model (Message(..))
 import Prelude hiding (id)
 import qualified Db.Db as Db
 
@@ -36,7 +36,6 @@ appConversation cnx msg = do
   runBeamPostgres cnx $ runInsert query
   pure ()
 
-
 history :: Connection -> MemberId -> FriendId -> IO [Value]
 history cnx mid fid = history' cnx mid fid Nothing
 
@@ -53,10 +52,6 @@ history' cnx mid fid rows = do
         $ runSelectReturningList
         $ select query
   pure $ (\c -> c.conversationMessage) <$> (reverse cs)
-
-
-promptsSys :: Connection -> IO [Prompt]
-promptsSys cnx = prompts cnx "system"
 
 prompts :: Connection -> MemberId -> IO [Prompt]
 prompts cnx mid = prompts' cnx mid (Just "system")

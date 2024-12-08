@@ -1,4 +1,4 @@
-module Model.Api.Static where
+module Api.Static where
 
 import GHC.Generics (Generic)
 import Servant ((:-), Application, Proxy(..), NamedRoutes, serve)

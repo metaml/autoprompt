@@ -10,7 +10,12 @@ common warnings
     ghc-options: -Wall -O2 -threaded
 
 library
-  exposed-modules: Db.Db
+  exposed-modules: Api.Api
+                 , Api.Chat
+                 , Api.Model
+                 , Api.Ping
+                 , Api.Static
+                 , Db.Db
                  , Db.Entity.Conversation
                  , Db.Entity.ConversationMeta
                  , Db.Entity.Enum
@@ -21,11 +26,7 @@ library
                  , Etc.Context
                  , Etc.Init
                  , Llm.ChatGpt
-                 , Model.Api.Api
-                 , Model.Api.Chat
-                 , Model.Api.Ping
-                 , Model.Api.Static
-                 , Model.Streamly
+                 , Llm.Model
   hs-source-dirs:     src
   ghc-options:        -O2 -Wall -threaded -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints -fno-warn-type-defaults -flate-specialise -fspecialise-aggressively -fprof-auto -fprof-cafs
   default-language:   Haskell2010
@@ -46,7 +47,6 @@ library
                     , KindSignatures
                     , LambdaCase
                     , MultiParamTypeClasses
-                    -- , NoFieldSelectors
                     , OverloadedLabels
                     , OverloadedStrings
                     , OverloadedRecordDot

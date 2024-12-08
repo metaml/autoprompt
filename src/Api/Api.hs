@@ -1,9 +1,9 @@
-module Model.Api.Api where
+module Api.Api where
 
+import Api.Ping (PingApi, pingApi)
+import Api.Static (StaticApi, staticApi)
+import Api.Chat (ChatApi, chatApi)
 import GHC.Generics (Generic)
-import Model.Api.Ping (PingApi, pingApi)
-import Model.Api.Static (StaticApi, staticApi)
-import Model.Api.Chat (ChatApi, chatApi)
 import Servant ((:>), (:-), Application, Proxy(..), NamedRoutes, serve)
 
 type ApiRoutes = NamedRoutes Api

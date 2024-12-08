@@ -1,4 +1,4 @@
-module Model.Api.Ping where
+module Api.Ping where
 
 import Control.Monad.State.Strict (liftIO)
 import Data.Aeson (FromJSON, ToJSON)

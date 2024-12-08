@@ -1,6 +1,6 @@
 module Etc.Autoprompt where
 
-import Model.Api.Api (apiApp)
+import Api.Api (apiApp)
 import Network.Wai.Handler.Warp (defaultSettings, setPort)
 import Network.Wai.Handler.WarpTLS (runTLS, tlsSettings)
 

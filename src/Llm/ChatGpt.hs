@@ -1,52 +1,42 @@
 module Llm.ChatGpt where
 
+import Db.Db (connection)
+import Db.Query (history, prompts)
+import Data.Function ((&))
 import Data.Text (Text, toLower, pack)
 import Etc.Context (openAiKey)
-import GHC.Generics
+import GHC.Generics (Generic)
+import Llm.Model
 import Network.HTTP.Client (newManager)
 import Network.HTTP.Client.TLS (tlsManagerSettings)
 import OpenAI.Client ( ChatCompletionRequest(..), ChatMessage(..), ChatResponse, ModelId(..)
                      , completeChat, makeOpenAIClient
                      )
 import Servant.Client.Core.ClientError (ClientError(..))
+import qualified Data.Map as M
+import qualified Data.List.NonEmpty as N
+import qualified Streamly.Data.Fold as F
+import qualified Streamly.Data.Stream as S
+
+type MemberId = Text
+type FriendId = Text
 
 -- @todo: redo using Reader
-chat :: ChatCompletionRequest -> IO (Either ClientError ChatResponse)
-chat req = do
-  apikey <- openAiKey
-  manager <- newManager tlsManagerSettings
-  let client = makeOpenAIClient apikey manager retries; retries = 3
-  completeChat client req
+chat :: ChatCompletionRequest -> MemberId -> FriendId -> IO (Either ClientError ChatResponse)
+chat req mid fid = do
+  c <- connection
+  req' <- S.fromPure (c, req)
+          & S.mapM ( \(c, r) -> do
+                       ps <- prompts c "system"
+                       vs <- history c mid fid
+                       pure $ (c, r, ps, vs)
+                   )
+          & S.toList
+  completeChat undefined undefined
+  -- prompts <- undefined
+  -- history <- undefined
 
-  -- case cres of
-  --   Left  err -> print err
-  --   Right res -> print $ chrChoices res
-
-newtype Content = Content { content :: Text }
-  deriving (Eq, Generic, Show)
-
-data Role = User | System
-  deriving (Eq, Generic, Show)
-
-chatRequest :: Content -> Role -> ChatCompletionRequest
-chatRequest (Content c) role =
-  ChatCompletionRequest
-  { chcrModel = ModelId "gpt-4o"
-  , chcrMessages = [ ChatMessage { chmContent = Just c
-                                 , chmRole = toLower (pack . show $ role)
-                                 , chmFunctionCall = Nothing
-                                 , chmName = Nothing
-                                 }
-                   ]
-  , chcrFunctions = Nothing
-  , chcrTemperature = Nothing
-  , chcrTopP = Nothing
-  , chcrN = Nothing
-  , chcrStream = Nothing
-  , chcrStop = Nothing
-  , chcrMaxTokens = Nothing
-  , chcrPresencePenalty = Nothing
-  , chcrFrequencyPenalty = Nothing
-  , chcrLogitBias = Nothing
-  , chcrUser = Nothing
-  }
+  -- apikey <- openAiKey
+  -- manager <- newManager tlsManagerSettings
+  -- let client = makeOpenAIClient apikey manager retries; retries = 3
+  -- completeChat client req

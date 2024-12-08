@@ -5,7 +5,7 @@ import Data.Text (Text)
 import Database.Beam ( (==.), (&&.)
                      , all_, filter_, limit_, runSelectReturningList, select, val_
                      )
-import Database.Beam.Postgres (runBeamPostgres, runBeamPostgresDebug)
+import Database.Beam.Postgres (runBeamPostgres)
 import Database.PostgreSQL.Simple (Connection)
 import Db.Entity.Conversation
 import Db.Entity.Prompt
@@ -20,7 +20,7 @@ history con member friend rows = do
       query = limit_ rows'
               $ filter_ (\c -> c.conversationMemberId ==. val_ member &&. c.conversationFriendId ==. val_ friend)
                         (all_ Db.amiDb.conversation)
-  cs <- runBeamPostgresDebug putStrLn con
+  cs <- runBeamPostgres con
         $ runSelectReturningList
         $ select query
   pure $ (\c -> c.conversationMessage) <$> cs
@@ -32,7 +32,7 @@ prompts con member friend  = do
                   Nothing -> "system"
       query = filter_ (\p -> p.promptMemberId ==. val_ member &&. p.promptFriendId ==. val_ friend')
                       (all_ Db.amiDb.prompt)
-  ps <- runBeamPostgresDebug putStrLn con
+  ps <- runBeamPostgres con
         $ runSelectReturningList
         $ select query
   pure ps

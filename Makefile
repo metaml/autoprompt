@@ -4,8 +4,8 @@ export SHELL := $(shell type --path bash)
 # the following vars are required for targets, "repl" and "rds-db"
 DBDATABASE = aip
 DBHOST     = aip.c7eaoykysgcc.us-east-2.rds.amazonaws.com
-DBPASSWORD = $(shell aws secretsmanager get-secret-value --secret-id=db-password |awk '{print $$4}')
-DBUSER     = $(shell aws secretsmanager get-secret-value --secret-id=db-user     |awk '{print $$4}')
+DBPASSWORD = $(shell aws secretsmanager get-secret-value --secret-id=db-password | jq --raw-output '.SecretString')
+DBUSER     = $(shell aws secretsmanager get-secret-value --secret-id=db-user     | jq --raw-output '.SecretString')
 
 buildc: build ## build continuously
 	@fswatch --latency 1 --one-per-batch --recursive --extended --exclude ".*" --include ".*\.hs$$|.*\.cabal$$|cabal\.project$$" . \
@@ -103,7 +103,7 @@ rds-db: export PGHOST     = $(DBHOST)
 rds-db: export PGPASSWORD = $(DBPASSWORD)
 rds-db: export PGUSER     = $(DBUSER)
 rds-db: ## connect to the postgresql instance
-	psql aip
+	psql
 
 cert-ssl: KEY=etc/ssl/key.pem
 cert-ssl: CSR=etc/ssl/server.csr

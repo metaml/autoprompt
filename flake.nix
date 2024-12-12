@@ -96,9 +96,10 @@
             export SHELL=$BASH
             export LANG=en_US.UTF-8
             export PS1="autoprompt|$PS1"
-            export VERSION=$(git rev-parse HEAD)
             export AWS_DEFAULT_REGION=us-east-2
             export AWS_DEFAULT_OUTPUT=json
+            export LESS=--no-init
+            export VERSION=$(git rev-parse HEAD)
           '';
 
         };

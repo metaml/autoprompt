@@ -99,7 +99,7 @@ api-test: ## curl an endpoint
 	--request POST \
 	--header "Content-Type: application/json" \
 	--data @etc/test/chatreq.json \
-	https://localhost:8443/$(METHOD)
+	https://localhost:8000/$(METHOD)
 rds-db: export PGDATABASE = $(DBDATABASE)
 rds-db: export PGHOST     = $(DBHOST)
 rds-db: export PGPASSWORD = $(DBPASSWORD)

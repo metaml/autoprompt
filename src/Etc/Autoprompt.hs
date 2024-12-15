@@ -5,7 +5,7 @@ import Network.Wai.Handler.Warp (defaultSettings, setPort)
 import Network.Wai.Handler.WarpTLS (runTLS, tlsSettings)
 
 port :: Int
-port = 8443
+port = 8000
 
 run :: IO ()
 run = runTLS tls warp apiApp

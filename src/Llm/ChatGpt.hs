@@ -12,6 +12,7 @@ import Db.Query (history, prompts)
 import Data.Function ((&))
 import Data.Text (Text, toLower, pack)
 import Data.Text.Conversions (ToText(..))
+import Database.PostgreSQL.Simple (Connection)
 import Etc.Context (openAiKey)
 import GHC.Generics (Generic)
 import Llm.Model ( Content(..), Message(..),
@@ -33,38 +34,43 @@ import qualified Streamly.Data.Stream as S
 type MemberId = Text
 type FriendId = Text
 
--- prompts <- undefined
--- history <- undefined
-
 -- @todo: redo using Reader
 chat :: ChatCompletionRequest -> MemberId -> FriendId -> IO (Either ClientError ChatResponse)
 chat req mid fid = do
   db <- connection
-  systemPrompts <- S.fromEffect (prompts db "system")
-                   & flatten
-                   & fmap (\p -> p.promptPrompt)
-                   & fmap (\p -> promptSys (Content p))
-                   & fmap (\msg -> toText msg.content)
-                   & fmap (\content -> Api.Message content "system" mid fid)
-                   & S.toList
-  historyPrompts <- S.fromEffect (history db mid fid)
-                    & flatten
-                    & fmap (\(v, mid, fid) -> ( parseMaybe parseJSON v :: Maybe Message
-                                              , mid
-                                              , fid
-                                              )
-                           )
-                    & S.filter (\(msg, _, _) -> isJust msg)
-                    & fmap (\(msg, mid, fid) -> (fromJust msg, mid, fid))
-                    & fmap (\(msg, mid, fid) -> (toText msg.content, mid, fid))
-                    & fmap (\(content, mid, fid) -> Api.Message content "system" mid fid)
-                    & S.toList
-  key <- openAiKey
-  mgr <- newManager tlsManagerSettings
-  messages <- S.fromPure (systemPrompts) --  <> promptsHistory)
+  sysPrompts <- systemPrompts db mid fid
+  histPrompts <- historyPrompts db mid fid
+  messages <- S.fromPure (sysPrompts <> histPrompts)
               & flatten
               & fmap (\p -> ChatMessage (Just p.content) p.role Nothing Nothing)
               & S.toList
+
+  key <- openAiKey
+  mgr <- newManager tlsManagerSettings
   let req'   = req{ chcrMessages = (messages <> req.chcrMessages) }
       openai = makeOpenAIClient key mgr 3 -- 3 retries
+
   completeChat openai req'
+
+systemPrompts :: Connection ->  MemberId -> FriendId -> IO [Api.Message]
+systemPrompts db mid fid = S.fromEffect (prompts db "system")
+                           & flatten
+                           & fmap (\p -> p.promptPrompt)
+                           & fmap (\p -> promptSys (Content p))
+                           & fmap (\msg -> toText msg.content)
+                           & fmap (\content -> Api.Message content "system" mid fid)
+                           & S.toList
+
+historyPrompts :: Connection ->  MemberId -> FriendId -> IO [Api.Message]
+historyPrompts db mid fid = S.fromEffect (history db mid fid)
+                            & flatten
+                            & fmap (\(v, mid, fid) -> ( parseMaybe parseJSON v :: Maybe Message
+                                                      , mid
+                                                      , fid
+                                                      )
+                                )
+                            & S.filter (\(msg, _, _) -> isJust msg)
+                            & fmap (\(msg, mid, fid) -> (fromJust msg, mid, fid))
+                            & fmap (\(msg, mid, fid) -> (toText msg.content, mid, fid))
+                            & fmap (\(content, mid, fid) -> Api.Message content "system" mid fid)
+                            & S.toList

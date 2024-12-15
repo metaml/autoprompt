@@ -77,6 +77,9 @@ image: ## nix build docker image
 	nix build --impure --verbose --option sandbox relaxed .#docker
 	nix build --impure --verbose --option sandbox relaxed .#autoprompt
 
+update: ## cabal update
+	cabal update
+
 help: ## help
 	-@grep --extended-regexp '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
 	| sed 's/^Makefile://1' \
@@ -97,7 +100,6 @@ api-test: ## curl an endpoint
 	--header "Content-Type: application/json" \
 	--data @etc/test/chatreq.json \
 	https://localhost:8443/$(METHOD)
-
 rds-db: export PGDATABASE = $(DBDATABASE)
 rds-db: export PGHOST     = $(DBHOST)
 rds-db: export PGPASSWORD = $(DBPASSWORD)

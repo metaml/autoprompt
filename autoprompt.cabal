@@ -43,6 +43,7 @@ library
                     , FlexibleInstances
                     , ForeignFunctionInterface
                     , GADTs
+                    , GeneralizedNewtypeDeriving
                     , ImpredicativeTypes
                     , KindSignatures
                     , LambdaCase
@@ -94,6 +95,7 @@ library
                     , streamly-core
                     , strings
                     , text
+                    , text-conversions
                     , time
                     , uuid
                     , vector

@@ -1,42 +1,70 @@
 module Llm.ChatGpt where
 
+import Api.Model (flatten)
+import Data.Aeson (FromJSON, Value, decode, parseJSON)
+import Data.Aeson.Types (parseMaybe)
+import Data.Aeson.Text (encodeToLazyText)
+import Data.Maybe (fromJust, isJust)
 import Db.Db (connection)
+import Db.Entity.Conversation (ConversationT(..))
+import Db.Entity.Prompt (PromptT(..))
 import Db.Query (history, prompts)
 import Data.Function ((&))
 import Data.Text (Text, toLower, pack)
+import Data.Text.Conversions (ToText(..))
 import Etc.Context (openAiKey)
 import GHC.Generics (Generic)
-import Llm.Model
+import Llm.Model ( Content(..), Message(..),
+                   content, promptSys
+                 )
 import Network.HTTP.Client (newManager)
 import Network.HTTP.Client.TLS (tlsManagerSettings)
 import OpenAI.Client ( ChatCompletionRequest(..), ChatMessage(..), ChatResponse, ModelId(..)
                      , completeChat, makeOpenAIClient
                      )
 import Servant.Client.Core.ClientError (ClientError(..))
+import qualified Api.Model as Api
 import qualified Data.Map as M
 import qualified Data.List.NonEmpty as N
+import qualified Llm.Model as Llm
 import qualified Streamly.Data.Fold as F
 import qualified Streamly.Data.Stream as S
 
 type MemberId = Text
 type FriendId = Text
 
+-- prompts <- undefined
+-- history <- undefined
+
 -- @todo: redo using Reader
 chat :: ChatCompletionRequest -> MemberId -> FriendId -> IO (Either ClientError ChatResponse)
 chat req mid fid = do
-  c <- connection
-  req' <- S.fromPure (c, req)
-          & S.mapM ( \(c, r) -> do
-                       ps <- prompts c "system"
-                       vs <- history c mid fid
-                       pure $ (c, r, ps, vs)
-                   )
-          & S.toList
-  completeChat undefined undefined
-  -- prompts <- undefined
-  -- history <- undefined
-
-  -- apikey <- openAiKey
-  -- manager <- newManager tlsManagerSettings
-  -- let client = makeOpenAIClient apikey manager retries; retries = 3
-  -- completeChat client req
+  db <- connection
+  systemPrompts <- S.fromEffect (prompts db "system")
+                   & flatten
+                   & fmap (\p -> p.promptPrompt)
+                   & fmap (\p -> promptSys (Content p))
+                   & fmap (\msg -> toText msg.content)
+                   & fmap (\content -> Api.Message content "system" mid fid)
+                   & S.toList
+  historyPrompts <- S.fromEffect (history db mid fid)
+                    & flatten
+                    & fmap (\(v, mid, fid) -> ( parseMaybe parseJSON v :: Maybe Message
+                                              , mid
+                                              , fid
+                                              )
+                           )
+                    & S.filter (\(msg, _, _) -> isJust msg)
+                    & fmap (\(msg, mid, fid) -> (fromJust msg, mid, fid))
+                    & fmap (\(msg, mid, fid) -> (toText msg.content, mid, fid))
+                    & fmap (\(content, mid, fid) -> Api.Message content "system" mid fid)
+                    & S.toList
+  key <- openAiKey
+  mgr <- newManager tlsManagerSettings
+  messages <- S.fromPure (systemPrompts) --  <> promptsHistory)
+              & flatten
+              & fmap (\p -> ChatMessage (Just p.content) p.role Nothing Nothing)
+              & S.toList
+  let req'   = req{ chcrMessages = (messages <> req.chcrMessages) }
+      openai = makeOpenAIClient key mgr 3 -- 3 retries
+  completeChat openai req'

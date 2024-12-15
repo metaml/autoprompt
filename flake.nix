@@ -12,7 +12,8 @@
         pname = "autoprompt";
         version = "0.1.0";
         pkgs = nixpkgs.legacyPackages.${system};
-        hkgs = pkgs.haskell.packages.ghc983;
+        haskpkgs = pkgs.haskell.packages.ghc983;
+        llvmpkgs = pkgs.llvmPackages_19;
         autoprompt  = pkgs.runCommand pname
                                       { preferLocalBuild = true; buildInputs = [ pname ]; }
                                       '''';
@@ -28,8 +29,8 @@
             buildInputs = with pkgs; [
               cacert
               git
-              hkgs.cabal-install
-              hkgs.ghc
+              haskpkgs.cabal-install
+              haskpkgs.ghc
               zlib
             ];
 
@@ -83,10 +84,11 @@
             gnugrep
             gnumake
             gnused
-            hkgs.cabal-install
-            hkgs.ghc
-            hkgs.hlint
+            haskpkgs.cabal-install
+            haskpkgs.ghc
+            haskpkgs.hlint
             libffi
+            llvmpkgs.clangWithLibcAndBasicRtAndLibcxx
             postgresql
             sourceHighlight
             zlib
@@ -98,7 +100,6 @@
             export PS1="autoprompt|$PS1"
             export AWS_DEFAULT_REGION=us-east-2
             export AWS_DEFAULT_OUTPUT=json
-            export LESS=--no-init
             export VERSION=$(git rev-parse HEAD)
           '';
 

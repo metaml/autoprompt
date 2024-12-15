@@ -23,7 +23,7 @@ data ChatReq = ChatReq
 
 data ChatRes = ChatRes
   { messages :: NonEmpty Message
-  , friend :: Text
+  , friend :: Text -- convenience
   } deriving (Eq, Generic, Show, ToJSON, FromJSON)
 
 data MessageReq = MessageReq
@@ -38,3 +38,14 @@ data MessageRes = MessageRes
 
 flatten :: Stream IO [a] -> Stream IO a
 flatten = S.concatMap (toStream . fromFoldable)
+
+
+-- prompts= [ {'content': 'Ask questions in context with the conversation from time to time but not too frequently.'
+--            , 'role': 'system'}
+--          , {'content': 'Focus on the last reply.'
+--            , 'role': 'system'
+--            }
+--          , {'content': 'Respond with kindness and empathy considering the emotional context and needs of the person. Be supportive language and understanding in your response. Be polite, nice, tell interesting stories once in a while when appropriate, speak naturally, and be less formal, avoid using slang words, and offer insights and opinions.'
+--            , 'role': 'system'
+--            }
+--          ]

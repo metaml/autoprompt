@@ -36,10 +36,10 @@ appConversation cnx msg = do
   runBeamPostgres cnx $ runInsert query
   pure ()
 
-history :: Connection -> MemberId -> FriendId -> IO [Value]
+history :: Connection -> MemberId -> FriendId -> IO [(Value, MemberId, FriendId)]
 history cnx mid fid = history' cnx mid fid Nothing
 
-history' :: Connection -> MemberId -> FriendId -> Maybe Integer -> IO [Value]
+history' :: Connection -> MemberId -> FriendId -> Maybe Integer -> IO [(Value, MemberId, FriendId)]
 history' cnx mid fid rows = do
   let count = \r -> case r of
                       Just n  -> n
@@ -51,7 +51,7 @@ history' cnx mid fid rows = do
   cs <- runBeamPostgres cnx
         $ runSelectReturningList
         $ select query
-  pure $ (\c -> c.conversationMessage) <$> (reverse cs)
+  pure $ (\c -> (c.conversationMessage, mid, fid)) <$> (reverse cs)
 
 prompts :: Connection -> MemberId -> IO [Prompt]
 prompts cnx mid = prompts' cnx mid (Just "system")

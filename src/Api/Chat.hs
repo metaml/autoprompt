@@ -76,4 +76,4 @@ chat' req = do
                }
 
 messages' :: MessageReq -> Handler [MessageRes]
-messages' r = history' r
+messages' = history'

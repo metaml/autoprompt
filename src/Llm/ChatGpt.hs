@@ -45,7 +45,6 @@ chat req mid fid = do
               & flatten
               & fmap (\p -> ChatMessage (Just p.content) p.role Nothing Nothing)
               & S.toList
-
   key <- openAiKey
   mgr <- newManager tlsManagerSettings
   let req'   = req{ chcrMessages = (messages <> req.chcrMessages) }

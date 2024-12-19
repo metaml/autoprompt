@@ -55,17 +55,22 @@ type FriendId = Text
 
 history' :: MessageReq -> Handler [MessageRes]
 history' (MessageReq mid fid) = do
+  liftIO $ putStrLn "history'"
+  liftIO $ print mid
+  liftIO $ print fid
   c <- liftIO Db.connection
   liftIO $ S.fromEffect (historyPrompts c mid fid)
            & flatten
-           & fmap (\msg -> if msg.role == "user"
-                           then (MessageRes msg.content msg.member)
-                           else (MessageRes msg.content msg.member)
+           & S.mapM (\msg -> print msg >> pure msg)
+           & fmap (\msg -> if msg.role == "User"
+                           then (MessageRes msg.member msg.content)
+                           else (MessageRes msg.friend msg.content)
                   )
            & S.toList
 
 system' :: MessageReq -> Handler ChatRes
 system' (MessageReq mid fid) = do
+  liftIO $ putStrLn "system'"
   liftIO $ print mid
   liftIO $ print fid
   c <- liftIO Db.connection

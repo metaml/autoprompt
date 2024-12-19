@@ -88,7 +88,7 @@
             haskpkgs.ghc
             haskpkgs.hlint
             libffi
-            llvmpkgs.clangWithLibcAndBasicRtAndLibcxx
+            # llvmpkgs.clangWithLibcAndBasicRtAndLibcxx
             postgresql
             sourceHighlight
             zlib

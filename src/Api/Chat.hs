@@ -3,6 +3,7 @@ module Api.Chat where
 import Api.Model ( ChatRes(..), ChatReq(..), Message(..), MessageRes(..), MessageReq(..)
                  , flatten
                  )
+import Api.Prompt (history')
 import Control.Monad.State.Strict (liftIO)
 -- import Data.Aeson (FromJSON, ToJSON)
 import Data.Either (isRight)
@@ -25,7 +26,7 @@ import qualified Streamly.Data.Stream as S
 
 data ChatApi mode = ChatApi
   { chat     :: mode :- "chat"     :> ReqBody '[JSON] ChatReq    :> Post '[JSON] ChatRes
-  , messages :: mode :- "messages" :> ReqBody '[JSON] MessageReq :> Post '[JSON] MessageRes
+  , messages :: mode :- "messages" :> ReqBody '[JSON] MessageReq :> Post '[JSON] [MessageRes]
   } deriving Generic
 
 type ChatRoutes = NamedRoutes ChatApi
@@ -63,7 +64,7 @@ chat' req = do
   msgs <- liftIO $ S.fromPure cs
                  & flatten
                  & fmap (\c -> Message { content = c
-                                       , role = "User"
+                                       , role = "Assistant"
                                        , member = member'
                                        , friend = friend'
                                        }
@@ -74,7 +75,5 @@ chat' req = do
                , friend = friend'
                }
 
-messages' :: MessageReq -> Handler MessageRes
-messages' _ = pure MessageRes { name = "hal"
-                              , message = "Hello, World!"
-                              }
+messages' :: MessageReq -> Handler [MessageRes]
+messages' r = history' r

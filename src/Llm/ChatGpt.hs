@@ -5,6 +5,7 @@ import Data.Aeson (FromJSON, Value, decode, parseJSON)
 import Data.Aeson.Types (parseMaybe)
 import Data.Aeson.Text (encodeToLazyText)
 import Data.Maybe (fromJust, isJust)
+import Data.Strings (strToLower)
 import Db.Db (connection)
 import Db.Entity.Conversation (ConversationT(..))
 import Db.Entity.Prompt (PromptT(..))
@@ -52,7 +53,7 @@ chat req mid fid = do
 
   completeChat openai req'
 
-systemPrompts :: Connection ->  MemberId -> FriendId -> IO [Api.Message]
+systemPrompts :: Connection -> MemberId -> FriendId -> IO [Api.Message]
 systemPrompts db mid fid = S.fromEffect (prompts db "system")
                            & flatten
                            & fmap (\p -> p.promptPrompt)
@@ -68,9 +69,10 @@ historyPrompts db mid fid = S.fromEffect (history db mid fid)
                                                       , mid
                                                       , fid
                                                       )
-                                )
+                                   )
                             & S.filter (\(msg, _, _) -> isJust msg)
                             & fmap (\(msg, mid, fid) -> (fromJust msg, mid, fid))
-                            & fmap (\(msg, mid, fid) -> (toText msg.content, mid, fid))
-                            & fmap (\(content, mid, fid) -> Api.Message content "system" mid fid)
+                            & fmap (\(msg, mid, fid) -> (toText msg.content, msg.role, mid, fid))
+                            & fmap (\(content, role, mid, fid) -> Api.Message content (show' role) mid fid)
                             & S.toList
+                            where show' = pack . show

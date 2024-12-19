@@ -77,8 +77,11 @@ image: ## nix build docker image
 	nix build --impure --verbose --option sandbox relaxed .#docker
 	nix build --impure --verbose --option sandbox relaxed .#autoprompt
 
-update: ## cabal update
+update-cabal: ## cabal update
 	cabal update
+
+update-flake: ## flake update
+	nix flake update
 
 help: ## help
 	-@grep --extended-regexp '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -92,14 +95,27 @@ help: ## help
 login-aws: ## login to aws to fetch/refresh token
 	aws sso login # AdministratorAccess-975050288432
 
-api-test: METHOD ?= chat/chat
-api-test: ## curl an endpoint
+api-test-chat: ## post to /chat/chat
 	curl \
 	--insecure \
-	--request POST \
 	--header "Content-Type: application/json" \
 	--data @etc/test/chatreq.json \
-	https://localhost:8000/$(METHOD)
+	https://localhost:8000/chat/cat
+
+api-test-msgs: ## post to /chat/messages
+	curl \
+	--insecure \
+	--header "Content-Type: application/json" \
+	--data @etc/test/messagereq.json \
+	https://localhost:8000/chat/messages
+
+api-test-sys: ## post to /chat/messages
+	curl \
+	--insecure \
+	--header "Content-Type: application/json" \
+	--data @etc/test/chatreq.json \
+	https://localhost:8000/prompts/system
+
 rds-db: export PGDATABASE = $(DBDATABASE)
 rds-db: export PGHOST     = $(DBHOST)
 rds-db: export PGPASSWORD = $(DBPASSWORD)

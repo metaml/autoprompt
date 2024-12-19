@@ -17,13 +17,13 @@ data Message = Message
   } deriving (Eq, Generic, Show, ToJSON, FromJSON)
 
 data ChatReq = ChatReq
-  { messages ::NonEmpty Message
-  , stream :: Bool
+  { messages :: NonEmpty Message
+  , stream   :: Bool
   } deriving (Eq, Generic, Show, ToJSON, FromJSON)
 
 data ChatRes = ChatRes
   { messages :: NonEmpty Message
-  , friend :: Text -- convenience
+  , friend   :: Text -- convenience
   } deriving (Eq, Generic, Show, ToJSON, FromJSON)
 
 data MessageReq = MessageReq
@@ -32,13 +32,12 @@ data MessageReq = MessageReq
   } deriving (Eq, Generic, Show, ToJSON, FromJSON)
 
 data MessageRes = MessageRes
-  { name :: Text
+  { name    :: Text
   , message :: Text
   } deriving (Eq, Generic, Show, ToJSON, FromJSON)
 
 flatten :: Stream IO [a] -> Stream IO a
 flatten = S.concatMap (toStream . fromFoldable)
-
 
 -- prompts= [ {'content': 'Ask questions in context with the conversation from time to time but not too frequently.'
 --            , 'role': 'system'}

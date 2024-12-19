@@ -1,5 +1,6 @@
 module Db.Query where
 
+import Api.Model (Message(..))
 import Data.Aeson (Value, toJSON)
 import Data.Text (Text)
 import Database.Beam ( (==.), (&&.)
@@ -12,13 +13,14 @@ import Database.PostgreSQL.Simple (Connection)
 import Db.Entity.Conversation
 import Db.Entity.Enum
 import Db.Entity.Prompt
-import Api.Model (Message(..))
+import Llm.Model (Role(..))
 import Prelude hiding (id)
 import qualified Db.Db as Db
 
 type MemberId = Text
 type FriendId = Text
 
+-- append
 appConversation :: Connection -> Message -> IO ()
 appConversation cnx msg = do
   let query = insert Db.amiDb.conversation
@@ -51,7 +53,11 @@ history' cnx mid fid rows = do
   cs <- runBeamPostgres cnx
         $ runSelectReturningList
         $ select query
-  pure $ (\c -> (c.conversationMessage, mid, fid)) <$> (reverse cs)
+  pure $ (\c -> if c.conversationSpeakerType == Friend
+                then (c.conversationMessage, mid, fid)
+                else (c.conversationMessage, mid, fid)
+         ) <$> (reverse cs)
+  -- pure $ (\c -> (c.conversationMessage, mid, fid) <$> (reverse cs))
 
 prompts :: Connection -> MemberId -> IO [Prompt]
 prompts cnx mid = prompts' cnx mid (Just "system")

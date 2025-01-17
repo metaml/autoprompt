@@ -12,8 +12,8 @@
         pname = "autoprompt";
         version = "0.1.0";
         pkgs = nixpkgs.legacyPackages.${system};
-        haskpkgs = pkgs.haskell.packages.ghc984;
-        llvmpkgs = pkgs.llvmPackages_19;
+        haskpkgs = pkgs.haskell.packages.ghc983; # [984 9101 9121] 
+        llvmpkgs = pkgs.llvmPackages;
         autoprompt  = pkgs.runCommand pname
                                       { preferLocalBuild = true; buildInputs = [ pname ]; }
                                       '''';
@@ -89,7 +89,7 @@
             haskpkgs.ghc
             haskpkgs.hlint
             libffi
-            # llvmpkgs.clangWithLibcAndBasicRtAndLibcxx
+            llvmpkgs.clangWithLibcAndBasicRtAndLibcxx
             postgresql
             sourceHighlight
             zlib

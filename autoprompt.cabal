@@ -68,7 +68,6 @@ library
                     , ViewPatterns
   build-depends:      base
                     , aeson
-                    , aeson-optics
                     , bytestring
                     , beam-core
                     , beam-migrate

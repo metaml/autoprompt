@@ -6,7 +6,7 @@ import Data.Text (Text)
 import Data.Time (UTCTime)
 import Data.UUID (UUID)
 import Database.Beam (Identity)
-import Database.Beam.Schema (Beamable, Columnar, PrimaryKey(..), Table)
+import Database.Beam.Schema (Beamable, Columnar, PrimaryKey(..), Table(..))
 import Db.Entity.Enum (MetaEnum)
 import GHC.Generics (Generic)
 

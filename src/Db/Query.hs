@@ -21,8 +21,8 @@ type MemberId = Text
 type FriendId = Text
 
 -- append
-appConversation :: Connection -> Message -> IO ()
-appConversation cnx msg = do
+insertConversation :: Connection -> Message -> IO ()
+insertConversation cnx msg = do
   let query = insert Db.amiDb.conversation
               $ insertExpressions [ Conversation default_
                                                  default_
@@ -37,6 +37,9 @@ appConversation cnx msg = do
                                   ]
   runBeamPostgres cnx $ runInsert query
   pure ()
+
+upsertPrompt :: Connection -> Prompt -> IO ()
+upsertPrompt = undefined
 
 history :: Connection -> MemberId -> FriendId -> IO [(Value, MemberId, FriendId)]
 history cnx mid fid = history' cnx mid fid Nothing

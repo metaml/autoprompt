@@ -12,7 +12,7 @@
         pname = "autoprompt";
         version = "0.1.0";
         pkgs = nixpkgs.legacyPackages.${system};
-        haskpkgs = pkgs.haskell.packages.ghc983;
+        haskpkgs = pkgs.haskell.packages.ghc984;
         llvmpkgs = pkgs.llvmPackages_19;
         autoprompt  = pkgs.runCommand pname
                                       { preferLocalBuild = true; buildInputs = [ pname ]; }
@@ -85,6 +85,7 @@
             gnumake
             gnused
             haskpkgs.cabal-install
+            haskpkgs.cpphs
             haskpkgs.ghc
             haskpkgs.hlint
             libffi

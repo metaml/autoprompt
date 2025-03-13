@@ -8,8 +8,7 @@ DBPASSWORD = $(shell aws secretsmanager get-secret-value --secret-id=db-password
 DBUSER     = $(shell aws secretsmanager get-secret-value --secret-id=db-user     | jq --raw-output '.SecretString')
 
 buildc: build ## build continuously
-	@fswatch --latency 1 --one-per-batch --recursive --extended --exclude ".*" --include ".*\.hs$$|.*\.cabal$$|cabal\.project$$" . \
-	| xargs --no-run-if-empty -I{} cabal build --jobs='$$ncpus' \
+	@watchexec --timings --exts hs,cabal,project cabal -- build --jobs='\$$ncpus' \
 	| source-highlight --src-lang=haskell --out-format=esc
 
 build: # lint (breaks on multiple readers) ## build

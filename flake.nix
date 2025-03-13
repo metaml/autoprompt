@@ -12,8 +12,8 @@
         pname = "autoprompt";
         version = "0.1.0";
         pkgs = nixpkgs.legacyPackages.${system};
-        haskpkgs = pkgs.haskell.packages.ghc983; # [984 9101 9121] 
-        llvmpkgs = pkgs.llvmPackages;
+        haskpkgs = pkgs.haskell.packages.ghc984;
+        llvmpkgs = pkgs.llvmPackages_latest;
         autoprompt  = pkgs.runCommand pname
                                       { preferLocalBuild = true; buildInputs = [ pname ]; }
                                       '''';
@@ -87,11 +87,12 @@
             haskpkgs.cabal-install
             haskpkgs.cpphs
             haskpkgs.ghc
-            haskpkgs.hlint
+            #haskpkgs.hlint
             libffi
             llvmpkgs.clangWithLibcAndBasicRtAndLibcxx
             postgresql
             sourceHighlight
+            watchexec
             zlib
           ];
 
